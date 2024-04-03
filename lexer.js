@@ -40,13 +40,12 @@ var Lexer = /** @class */ (function () {
     };
     Lexer.prototype.char = function () {
         var result = '';
+        if (!this.currentChar || !/[a-zA-Z]/.test(this.currentChar)) {
+            throw new Error("Invalid character: ".concat(this.currentChar));
+        }
         while (this.currentChar && /[a-zA-Z]/.test(this.currentChar)) {
             result += this.currentChar;
             this.advance();
-        }
-        // Check if the variable is being redeclared
-        if (this.semanticAnalyzer.symbolTable.hasOwnProperty(result) && this.semanticAnalyzer.symbolTable[result].declarationType === 'DECLARE') {
-            throw new Error("Redeclaration of variable '".concat(result, "' not allowed"));
         }
         return result;
     };

@@ -6,7 +6,14 @@ var semanticAnalyzer_1 = require("./semanticAnalyzer");
 var parser_1 = require("./parser");
 // Read the input file
 var inputFileName = 'input.txt';
-var inputText = fs.readFileSync(inputFileName, 'utf-8');
+var inputText;
+try {
+    inputText = fs.readFileSync(inputFileName, 'utf-8');
+}
+catch (error) {
+    console.error("Error reading input file: ".concat(error.message));
+    process.exit(1);
+}
 // Create a lexer and semantic analyzer
 var semanticAnalyzer = new semanticAnalyzer_1.SemanticAnalyzer();
 var lexer = new lexer_1.Lexer(inputText, semanticAnalyzer);

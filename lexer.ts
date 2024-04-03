@@ -1,5 +1,5 @@
-import { error } from 'console';
 import { SemanticAnalyzer } from './semanticAnalyzer';
+
 export class Token {
     tokenType: string;
     value: string;
@@ -49,14 +49,12 @@ export class Lexer {
 
     char(): string {
         let result = '';
+        if (!this.currentChar || !/[a-zA-Z]/.test(this.currentChar)) {
+            throw new Error(`Invalid character: ${this.currentChar}`);
+        }
         while (this.currentChar && /[a-zA-Z]/.test(this.currentChar)) {
             result += this.currentChar;
             this.advance();
-        }
-
-        // Check if the variable is being redeclared
-        if (this.semanticAnalyzer.symbolTable.hasOwnProperty(result) && this.semanticAnalyzer.symbolTable[result].declarationType === 'DECLARE') {
-            throw new Error(`Redeclaration of variable '${result}' not allowed`);
         }
 
         return result;

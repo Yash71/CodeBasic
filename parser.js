@@ -31,7 +31,7 @@ var Parser = /** @class */ (function () {
                 this.eat('CHAR'); // Consume the variable name token
             }
             else {
-                throw new Error("Undeclared variable ".concat(variableName));
+                throw new Error("Undeclared variable '".concat(variableName, "'"));
             }
         }
         else {
@@ -46,14 +46,10 @@ var Parser = /** @class */ (function () {
         }
         else if (token.tokenType === 'CHAR') {
             var variableName = token.value;
-            if (this.semanticAnalyzer.symbolTable.hasOwnProperty(variableName)) {
-                this.eat('CHAR');
-                var variableValue = this.semanticAnalyzer.symbolTable[variableName];
-                return typeof variableValue === 'number' ? variableValue : parseInt(variableValue.value);
-            }
-            else {
-                throw new Error("Undeclared variable ".concat(variableName));
-            }
+            this.semanticAnalyzer.checkVariable(variableName); // Check if the variable is declared
+            this.eat('CHAR');
+            var variableValue = this.semanticAnalyzer.symbolTable[variableName];
+            return typeof variableValue === 'number' ? variableValue : parseInt(variableValue.value);
         }
         else {
             throw new Error('Invalid factor');
@@ -99,9 +95,6 @@ var Parser = /** @class */ (function () {
             if (this.currentToken.value === 'declare') {
                 this.eat('DECLARE'); // Consume the 'declare' token
                 var variableName = this.currentToken.value;
-                // if (this.semanticAnalyzer.symbolTable.hasOwnProperty(variableName)) {
-                //     errors.push(`Variable '${variableName}' is already declared`);
-                // }
                 this.eat('CHAR'); // Consume the variable name token
                 this.eat('OPERATOR'); // Consume the '=' token
                 var value = this.expr();
@@ -112,7 +105,7 @@ var Parser = /** @class */ (function () {
                 this.show(); // Handle the 'show' statement
             }
             else {
-                errors.push("Invalid token: ".concat(this.currentToken.value));
+                throw new Error("Undeclared variable: ".concat(this.currentToken.value));
             }
         }
         if (errors.length > 0) {

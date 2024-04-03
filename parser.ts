@@ -1,6 +1,6 @@
+import { Token } from './lexer';
 import { Lexer } from './lexer';
 import { SemanticAnalyzer } from './semanticAnalyzer';
-import { Token } from './lexer';
 
 export class Parser {
     lexer: Lexer;
@@ -35,7 +35,7 @@ export class Parser {
                 console.log(this.semanticAnalyzer.symbolTable[variableName].value);
                 this.eat('CHAR'); // Consume the variable name token
             } else {
-                throw new Error(`Undeclared variable ${variableName}`);
+                throw new Error(`Undeclared variable '${variableName}'`);
             }
         } else {
             throw new Error('Invalid show statement');
@@ -49,31 +49,28 @@ export class Parser {
             return parseInt(token.value);
         } else if (token.tokenType === 'CHAR') {
             let variableName = token.value;
-            if (this.semanticAnalyzer.symbolTable.hasOwnProperty(variableName)) {
-                this.eat('CHAR');
-                let variableValue = this.semanticAnalyzer.symbolTable[variableName];
-                return typeof variableValue === 'number' ? variableValue : parseInt(variableValue.value);
-
-            } else {
-                throw new Error(`Undeclared variable ${variableName}`);
-            }
+            this.semanticAnalyzer.checkVariable(variableName); // Check if the variable is declared
+            this.eat('CHAR');
+            let variableValue = this.semanticAnalyzer.symbolTable[variableName];
+            return typeof variableValue === 'number' ? variableValue : parseInt(variableValue.value);
         } else {
             throw new Error('Invalid factor');
         }
     }
-
+    
+    
 
     term(): number {
-        let result = this.factor() as number;
+        let result = this.factor();
 
         while (this.currentToken.tokenType === 'OPERATOR' && (this.currentToken.value === '*' || this.currentToken.value === '/')) {
             let token = this.currentToken;
             if (token.value === '*') {
                 this.eat('OPERATOR');
-                result *= this.factor() as number;
+                result *= this.factor();
             } else if (token.value === '/') {
                 this.eat('OPERATOR');
-                let divisor = this.factor() as number;
+                let divisor = this.factor();
                 if (divisor === 0) {
                     throw new Error('Division by zero');
                 }
@@ -83,7 +80,6 @@ export class Parser {
 
         return result;
     }
-
 
     expr(): number {
         let result = this.term();
@@ -102,16 +98,12 @@ export class Parser {
         return result;
     }
 
-
     parse() {
         const errors: string[] = [];
         while (this.currentToken.tokenType !== 'EOF') {
             if (this.currentToken.value === 'declare') {
                 this.eat('DECLARE'); // Consume the 'declare' token
                 let variableName = this.currentToken.value;
-                // if (this.semanticAnalyzer.symbolTable.hasOwnProperty(variableName)) {
-                //     errors.push(`Variable '${variableName}' is already declared`);
-                // }
                 this.eat('CHAR'); // Consume the variable name token
                 this.eat('OPERATOR'); // Consume the '=' token
                 let value = this.expr();
@@ -119,8 +111,9 @@ export class Parser {
                 this.semanticAnalyzer.declareVariable(variableName, value.toString(),'INTEGER', 'INTEGER');
             } else if (this.currentToken.value === 'show') {
                 this.show(); // Handle the 'show' statement
-            } else {
-                errors.push(`Invalid token: ${this.currentToken.value}`);
+            } 
+            else {
+                throw new Error(`Undeclared variable: ${this.currentToken.value}`);
             }
         }
     
@@ -128,6 +121,7 @@ export class Parser {
             throw new Error(errors.join('\n'));
         }
     }
+    
     
     
 }
