@@ -57,8 +57,8 @@ export class Parser {
             throw new Error('Invalid factor');
         }
     }
-    
-    
+
+
 
     term(): number {
         let result = this.factor();
@@ -108,20 +108,30 @@ export class Parser {
                 this.eat('OPERATOR'); // Consume the '=' token
                 let value = this.expr();
                 this.variables[variableName] = value;
-                this.semanticAnalyzer.declareVariable(variableName, value.toString(),'INTEGER', 'INTEGER');
+                this.semanticAnalyzer.declareVariable(variableName, value.toString(), 'INTEGER', 'INTEGER');
             } else if (this.currentToken.value === 'show') {
                 this.show(); // Handle the 'show' statement
-            } 
+            } else if (this.currentToken.tokenType === 'CHAR') {
+                let variableName = this.currentToken.value;
+                if (!this.semanticAnalyzer.symbolTable.hasOwnProperty(variableName)) {
+                    throw new Error(`Undeclared variable '${variableName}'`);
+                }
+                this.eat('CHAR'); // Consume the variable name token
+                this.eat('OPERATOR'); // Consume the '=' token
+                let value = this.expr();
+                this.variables[variableName] = value;
+                this.semanticAnalyzer.assignVariable(variableName, value.toString());
+            }
             else {
                 throw new Error(`Undeclared variable: ${this.currentToken.value}`);
             }
         }
-    
+
         if (errors.length > 0) {
             throw new Error(errors.join('\n'));
         }
     }
-    
-    
-    
+
+
+
 }

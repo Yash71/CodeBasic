@@ -104,6 +104,17 @@ var Parser = /** @class */ (function () {
             else if (this.currentToken.value === 'show') {
                 this.show(); // Handle the 'show' statement
             }
+            else if (this.currentToken.tokenType === 'CHAR') {
+                var variableName = this.currentToken.value;
+                if (!this.semanticAnalyzer.symbolTable.hasOwnProperty(variableName)) {
+                    throw new Error("Undeclared variable '".concat(variableName, "'"));
+                }
+                this.eat('CHAR'); // Consume the variable name token
+                this.eat('OPERATOR'); // Consume the '=' token
+                var value = this.expr();
+                this.variables[variableName] = value;
+                this.semanticAnalyzer.assignVariable(variableName, value.toString());
+            }
             else {
                 throw new Error("Undeclared variable: ".concat(this.currentToken.value));
             }
