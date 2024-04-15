@@ -30,6 +30,24 @@ var Lexer = /** @class */ (function () {
             this.advance();
         }
     };
+    Lexer.prototype.peek = function () {
+        if (this.pos + 1 < this.text.length) {
+            return this.text[this.pos + 1];
+        }
+        return null;
+    };
+    Lexer.prototype.peekNext = function () {
+        if (this.pos + 1 < this.text.length) {
+            return this.text[this.pos + 1];
+        }
+        return null;
+    };
+    Lexer.prototype.peekNextNext = function () {
+        if (this.pos + 3 < this.text.length) {
+            return this.text[this.pos + 3];
+        }
+        return null;
+    };
     Lexer.prototype.integer = function () {
         var result = '';
         while (this.currentChar && /[0-9]/.test(this.currentChar)) {
@@ -74,8 +92,38 @@ var Lexer = /** @class */ (function () {
                 this.advance();
                 return new Token('OPERATOR', '/');
             }
+            if ((this.currentChar === '<' || this.currentChar === '>') && this.peekNext() === '=') {
+                var op = this.currentChar;
+                this.advance(); // Consume the '<' or '>'
+                this.advance(); // Consume the '='
+                return new Token('OPERATOR', op + '=');
+            }
+            else if (this.currentChar === '<' && this.peekNext() === '=') {
+                this.advance(); // Consume the '<'
+                this.advance(); // Consume the '='
+                return new Token('OPERATOR', '<=');
+            }
+            else if (this.currentChar === '>' && this.peekNext() === '=') {
+                this.advance(); // Consume the '>'
+                this.advance(); // Consume the '='
+                return new Token('OPERATOR', '>=');
+            }
+            else if (this.currentChar === '<' || this.currentChar === '>') {
+                var op = this.currentChar;
+                this.advance();
+                return new Token('OPERATOR', op);
+            }
             if (/[a-zA-Z]/.test(this.currentChar)) {
                 var value = this.char();
+                if (value === 'if') {
+                    return new Token('IF', 'if');
+                }
+                else if (value === 'else') {
+                    return new Token('ELSE', 'else');
+                }
+                else if (value === 'then') {
+                    return new Token('THEN', 'then');
+                }
                 if (value === 'declare') {
                     return new Token('DECLARE', value);
                 }
@@ -102,6 +150,22 @@ var Lexer = /** @class */ (function () {
                 }
                 this.advance(); // Consume the closing quote
                 return new Token('STRING', value);
+            }
+            if (this.currentChar === '(') {
+                this.advance();
+                return new Token('LPAREN', '(');
+            }
+            if (this.currentChar === ')') {
+                this.advance();
+                return new Token('RPAREN', ')');
+            }
+            if (this.currentChar === '{') {
+                this.advance();
+                return new Token('LBRACE', '{');
+            }
+            if (this.currentChar === '}') {
+                this.advance();
+                return new Token('RBRACE', '}');
             }
             throw new Error("Invalid character: ".concat(this.currentChar));
         }

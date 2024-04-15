@@ -20,7 +20,7 @@ var Parser = /** @class */ (function () {
         this.eat('SHOW'); // Consume the 'show' token
         var token = this.currentToken;
         if (token.tokenType === 'STRING') {
-            var value = token.value.slice(0, -1); // Remove the quotes
+            var value = token.value.slice(0); // Remove the quotes
             console.log(value);
             this.eat('STRING'); // Consume the string token
         }
@@ -51,7 +51,14 @@ var Parser = /** @class */ (function () {
             var variableValue = this.semanticAnalyzer.symbolTable[variableName];
             return typeof variableValue === 'number' ? variableValue : parseInt(variableValue.value);
         }
+        else if (token.tokenType === 'LPAREN') {
+            this.eat('LPAREN'); // Consume the '(' token
+            var result = this.expr(); // Parse the expression inside parentheses
+            this.eat('RPAREN'); // Consume the ')' token
+            return result;
+        }
         else {
+            // console.log(token);
             throw new Error('Invalid factor');
         }
     };
@@ -76,7 +83,8 @@ var Parser = /** @class */ (function () {
     };
     Parser.prototype.expr = function () {
         var result = this.term();
-        while (this.currentToken.tokenType === 'OPERATOR' && (this.currentToken.value === '+' || this.currentToken.value === '-')) {
+        while (this.currentToken.tokenType === 'OPERATOR' && (this.currentToken.value === '+' || this.currentToken.value === '-'
+            || this.currentToken.value === '<' || this.currentToken.value === '>' || this.currentToken.value === '<=' || this.currentToken.value === '>=')) {
             var token = this.currentToken;
             if (token.value === '+') {
                 this.eat('OPERATOR');
@@ -86,11 +94,32 @@ var Parser = /** @class */ (function () {
                 this.eat('OPERATOR');
                 result -= this.term();
             }
+            else if (token.value === '<') {
+                this.eat('OPERATOR');
+                var right = this.expr();
+                result = result < right ? 1 : 0;
+            }
+            else if (token.value === '>') {
+                this.eat('OPERATOR');
+                var right = this.expr();
+                result = result > right ? 1 : 0;
+            }
+            else if (token.value === '<=') {
+                this.eat('OPERATOR');
+                var right = this.expr();
+                result = result <= right ? 1 : 0;
+            }
+            else if (token.value === '>=') {
+                this.eat('OPERATOR');
+                var right = this.expr();
+                result = result >= right ? 1 : 0;
+            }
         }
         return result;
     };
     Parser.prototype.parse = function () {
         var errors = [];
+        // console.log(this.currentToken.tokenType);
         while (this.currentToken.tokenType !== 'EOF') {
             if (this.currentToken.value === 'declare') {
                 this.eat('DECLARE'); // Consume the 'declare' token
@@ -107,6 +136,7 @@ var Parser = /** @class */ (function () {
             else if (this.currentToken.tokenType === 'CHAR') {
                 var variableName = this.currentToken.value;
                 if (!this.semanticAnalyzer.symbolTable.hasOwnProperty(variableName)) {
+                    console.log("here it is producing error");
                     throw new Error("Undeclared variable '".concat(variableName, "'"));
                 }
                 this.eat('CHAR'); // Consume the variable name token
@@ -115,8 +145,30 @@ var Parser = /** @class */ (function () {
                 this.variables[variableName] = value;
                 this.semanticAnalyzer.assignVariable(variableName, value.toString());
             }
+            else if (this.currentToken.tokenType === 'IF') {
+                this.eat('IF'); // Consume the 'if' token
+                var condition = this.expr();
+                // console.log(condition);
+                if (condition !== 0) {
+                    this.eat('THEN'); // Consume the 'then' token
+                    this.parse();
+                }
+                else {
+                    // Skip 'then' block
+                    while (this.currentToken.tokenType !== 'ELSE' && this.currentToken.tokenType !== 'EOF') {
+                        this.currentToken = this.lexer.getNextToken();
+                    }
+                    if (this.currentToken.tokenType === 'EOF') {
+                        return;
+                    }
+                    if (this.currentToken.tokenType === 'ELSE') {
+                        this.eat('ELSE'); // Consume the 'else' token
+                        this.parse(); // Parse the 'else' block
+                    }
+                }
+            }
             else {
-                throw new Error("Undeclared variable: ".concat(this.currentToken.value));
+                throw new Error("Not able to parse: ".concat(this.currentToken.value));
             }
         }
         if (errors.length > 0) {
