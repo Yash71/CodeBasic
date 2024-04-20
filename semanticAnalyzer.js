@@ -16,6 +16,7 @@ var SemanticAnalyzer = /** @class */ (function () {
             throw new Error("Undeclared variable '".concat(name, "'"));
         }
         this.symbolTable[name].value = value;
+        console.log(this.symbolTable);
     };
     SemanticAnalyzer.prototype.checkVariable = function (variableName) {
         if (!this.symbolTable.hasOwnProperty(variableName)) {
@@ -34,6 +35,21 @@ var SemanticAnalyzer = /** @class */ (function () {
     SemanticAnalyzer.prototype.getVariableType = function (variableName) {
         this.checkVariable(variableName);
         return this.symbolTable[variableName].type;
+    };
+    // if-else
+    SemanticAnalyzer.prototype.checkCondition = function (condition) {
+        // Simply check the condition without throwing an error
+        return !!condition; // Convert the condition to a boolean
+    };
+    SemanticAnalyzer.prototype.checkElseBlock = function (elseBlockReached) {
+        if (!elseBlockReached) {
+            throw new Error('ELSE statement without corresponding IF');
+        }
+    };
+    SemanticAnalyzer.prototype.checkEndIf = function (endIfReached) {
+        if (!endIfReached) {
+            throw new Error('ENDIF statement without corresponding IF');
+        }
     };
     return SemanticAnalyzer;
 }());

@@ -139,6 +139,12 @@ export class Lexer {
                 else if (value === 'then') {
                     return new Token('THEN', 'then');
                 }
+                else if (value === 'ENDif') {
+                    return new Token('ENDIF', 'ENDif');
+                }
+                else if (value === 'ENDelse') {
+                    return new Token('ENDELSE', 'ENDelse');
+                }
                 if (value === 'declare') {
                     return new Token('DECLARE', value);
                 } else if (value === 'show') {

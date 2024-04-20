@@ -24,7 +24,7 @@ export class SemanticAnalyzer {
             throw new Error(`Undeclared variable '${variableName}'`);
         }
     }
-
+    
     checkDivisionByZero(divisor: number) {
         if (divisor === 0) {
             throw new Error('Division by zero');
@@ -39,5 +39,24 @@ export class SemanticAnalyzer {
     getVariableType(variableName: string): string {
         this.checkVariable(variableName);
         return this.symbolTable[variableName].type;
+    }
+
+    // if-else
+    checkCondition(condition: number) {
+        // Simply check the condition without throwing an error
+        return !!condition; // Convert the condition to a boolean
+    }
+    
+
+    checkElseBlock(elseBlockReached: boolean) {
+        if (!elseBlockReached) {
+            throw new Error('ELSE statement without corresponding IF');
+        }
+    }
+
+    checkEndIf(endIfReached: boolean) {
+        if (!endIfReached) {
+            throw new Error('ENDIF statement without corresponding IF');
+        }
     }
 }
