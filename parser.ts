@@ -129,7 +129,7 @@ export class Parser {
     parse() {
         const errors: string[] = [];
         while (this.currentToken.tokenType !== 'EOF') {
-            // console.log(this.currentToken.tokenType);
+            // console.log(this.currentToken);
 
             if (this.currentToken.value === 'declare') {
                 this.eat('DECLARE'); // Consume the 'declare' token
@@ -158,21 +158,24 @@ export class Parser {
                 if (this.semanticAnalyzer.checkCondition(condition)) {
                     this.skipBlk = true;
                     this.eat('THEN'); // Consume the 'THEN' token
-                    this.parse(); // Parse the 'IF' block
-                    
-                } 
+                    this.parse(); // Parse the 'IF' block                    
+                } else {
+                    this.skipBlock('ENDIF');
+
+                    // console.log(this.skipBlk);
+                }
             } else if (this.currentToken.value === 'else') {
                 // console.log(this.skipBlk);
-                if(!this.skipBlk){
+                if (!this.skipBlk) {
                     this.eat('ELSE');
                     this.parse();
                 }
-                else{
-                    this.skipBlock('ENDIF');
-                    this.skipBlk=false;
+                else {
+                    this.skipBlock('ENDELSE');
                 }
-                
-                
+                this.skipBlk = false;
+
+
             } else if (this.currentToken.tokenType === 'ENDIF') {
                 this.eat('ENDIF'); // Consume the 'ENDIF' token
             } else if (this.currentToken.tokenType === 'ENDELSE') {
@@ -184,13 +187,17 @@ export class Parser {
         }
     }
     skipBlock(endToken: string) {
-        while (this.currentToken.tokenType !== 'EOF' && this.currentToken.value !== endToken) {
+        while (this.currentToken.tokenType !== 'EOF' && this.currentToken.tokenType !== endToken) {
+
             this.currentToken = this.lexer.getNextToken();
+            // console.log(this.currentToken);
+           
         }
-        if (this.currentToken.value === endToken) {
-            this.currentToken = this.lexer.getNextToken(); // Consume the endToken
-        }
+        // if (this.currentToken.value === endToken) {
+        //     this.currentToken = this.lexer.getNextToken(); // Consume the endToken
+        // }
     }
-    
+
+
 
 }

@@ -16,7 +16,6 @@ var SemanticAnalyzer = /** @class */ (function () {
             throw new Error("Undeclared variable '".concat(name, "'"));
         }
         this.symbolTable[name].value = value;
-        console.log(this.symbolTable);
     };
     SemanticAnalyzer.prototype.checkVariable = function (variableName) {
         if (!this.symbolTable.hasOwnProperty(variableName)) {

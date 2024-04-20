@@ -122,7 +122,7 @@ var Parser = /** @class */ (function () {
     Parser.prototype.parse = function () {
         var errors = [];
         while (this.currentToken.tokenType !== 'EOF') {
-            // console.log(this.currentToken.tokenType);
+            // console.log(this.currentToken);
             if (this.currentToken.value === 'declare') {
                 this.eat('DECLARE'); // Consume the 'declare' token
                 var variableName = this.currentToken.value;
@@ -153,21 +153,23 @@ var Parser = /** @class */ (function () {
                 if (this.semanticAnalyzer.checkCondition(condition)) {
                     this.skipBlk = true;
                     this.eat('THEN'); // Consume the 'THEN' token
-                    this.parse(); // Parse the 'IF' block
-                } // Check the condition
-                // this.eat('ENDIF'); // Consume the 'ENDIF' token
+                    this.parse(); // Parse the 'IF' block                    
+                }
+                else {
+                    this.skipBlock('ENDIF');
+                    // console.log(this.skipBlk);
+                }
             }
             else if (this.currentToken.value === 'else') {
-                console.log(this.skipBlk);
+                // console.log(this.skipBlk);
                 if (!this.skipBlk) {
                     this.eat('ELSE');
                     this.parse();
                 }
                 else {
-                    this.skipBlock('ENDIF');
-                    this.skipBlk = false;
+                    this.skipBlock('ENDELSE');
                 }
-                // this.eat('ENDELSE'); // Consume the 'ENDELSE' token
+                this.skipBlk = false;
             }
             else if (this.currentToken.tokenType === 'ENDIF') {
                 this.eat('ENDIF'); // Consume the 'ENDIF' token
@@ -181,12 +183,13 @@ var Parser = /** @class */ (function () {
         }
     };
     Parser.prototype.skipBlock = function (endToken) {
-        while (this.currentToken.tokenType !== 'EOF' && this.currentToken.value !== endToken) {
+        while (this.currentToken.tokenType !== 'EOF' && this.currentToken.tokenType !== endToken) {
             this.currentToken = this.lexer.getNextToken();
+            // console.log(this.currentToken);
         }
-        if (this.currentToken.value === endToken) {
-            this.currentToken = this.lexer.getNextToken(); // Consume the endToken
-        }
+        // if (this.currentToken.value === endToken) {
+        //     this.currentToken = this.lexer.getNextToken(); // Consume the endToken
+        // }
     };
     return Parser;
 }());
