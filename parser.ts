@@ -8,7 +8,7 @@ export class Parser {
     semanticAnalyzer: SemanticAnalyzer;
     variables: { [key: string]: number } = {};
     skipBlk: boolean = false;
-
+    output : string ='';
     constructor(lexer: Lexer, semanticAnalyzer: SemanticAnalyzer) {
         this.lexer = lexer;
         this.currentToken = this.lexer.getNextToken();
@@ -25,17 +25,23 @@ export class Parser {
     }
 
     show() {
+        // let output='';
+        let value='';
         this.eat('SHOW'); // Consume the 'show' token
         let token = this.currentToken;
         if (token.tokenType === 'STRING') {
             let value = token.value.slice(0); // Remove the quotes
-            console.log(value);
+            // console.log(value);
+            // this.output = value;
+            this.output=value;
             this.eat('STRING'); // Consume the string token
         } else if (token.tokenType === 'CHAR') {
             let variableName = token.value;
             if (this.semanticAnalyzer.symbolTable.hasOwnProperty(variableName)) {
-                console.log(this.semanticAnalyzer.symbolTable[variableName].value);
+                // this.output = this.semanticAnalyzer.symbolTable[variableName].value.toString();
+                console.log(this.semanticAnalyzer.symbolTable[variableName].value.toString());
                 this.eat('CHAR'); // Consume the variable name token
+                return this.output;
             } else {
                 throw new Error(`Undeclared variable '${variableName}'`);
             }
@@ -144,7 +150,7 @@ export class Parser {
             } else if (this.currentToken.tokenType === 'CHAR') {
                 let variableName = this.currentToken.value;
                 if (!this.semanticAnalyzer.symbolTable.hasOwnProperty(variableName)) {
-                    console.log("here it is producing error");
+                    // console.log("here it is producing error");
                     throw new Error(`Undeclared variable '${variableName}'`);
                 }
                 this.eat('CHAR'); // Consume the variable name token
