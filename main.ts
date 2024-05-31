@@ -6,9 +6,22 @@ import { SemanticAnalyzer } from './semanticAnalyzer';
 import { Parser } from './parser';
 import cors from 'cors';
 import path from 'path';
+import { performance } from 'perf_hooks';
 
 const app = express();
 const port = 3000;
+app.get('/', (req, res) => {
+    app.use(express.static(path.join(__dirname, "../Front-end/main")));
+    res.sendFile(path.join(__dirname, '../Front-end/main/lander.html'));
+})
+app.get('/login', (req, res) => {
+    app.use(express.static(path.join(__dirname, "../Front-end/login")));
+    res.sendFile(path.join(__dirname, '../Front-end/login/login.html'));
+})
+app.get('/register', (req, res) => {
+    app.use(express.static(path.join(__dirname, "../Front-end/registration")));
+    res.sendFile(path.join(__dirname, '../Front-end/registration/registration.html'));
+})
 app.get('/execute', (req, res) => {
     // const {code,input}=req.body;
     // console.log({code,input});
@@ -41,6 +54,7 @@ app.get('/execute', (req, res) => {
         console.error(`Error reading input file: ${error.message}`);
         process.exit(1);
     }
+    const start = performance.now();
     const semanticAnalyzer = new SemanticAnalyzer();
     const lexer = new Lexer(codeText, semanticAnalyzer);
 
@@ -56,7 +70,12 @@ app.get('/execute', (req, res) => {
         let output = parser.output;
         if (output !== undefined) {
 
-            console.log(output);
+            // const end = performance.now();
+            // const elapsed = end - start;
+            // console.log(`Time elapsed: ${elapsed} ms`);
+            // console.log(output);
+
+
         }
         // res.json({output});
         // res.send(output);
