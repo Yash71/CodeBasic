@@ -2,6 +2,7 @@ import { Token } from './lexer';
 import { Lexer } from './lexer';
 import { SemanticAnalyzer } from './semanticAnalyzer';
 
+
 export class Parser {
     lexer: Lexer;
     currentToken: Token;
@@ -27,12 +28,14 @@ export class Parser {
     show() {
         // let output='';
         let value='';
+        
         this.eat('SHOW'); // Consume the 'show' token
         let token = this.currentToken;
         if (token.tokenType === 'STRING') {
             let value = token.value.slice(0); // Remove the quotes
             // console.log(value);
             // this.output = value;
+            
             this.output=value;
             this.eat('STRING'); // Consume the string token
         } else if (token.tokenType === 'CHAR') {
