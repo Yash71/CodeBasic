@@ -1,7 +1,4 @@
-declare x=10
+declare x = 10
 show x
-if (x>9) then
-
+x = x+10
 show x
-        
-ENDif

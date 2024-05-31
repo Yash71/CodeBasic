@@ -1,5 +1,3 @@
-Here is the Markdown (.md) file with the instructions you provided:
-
 # Instructions to run the application
 
 ## Step 1: Clone the repository
